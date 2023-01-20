@@ -11,7 +11,7 @@
 * Related Document: README.md
 *
 ********************************************************************************
-* Copyright 2021, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2021-2023, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -55,6 +55,12 @@
 
 /* Server task header file */
 #include "web_server.h"
+
+#if defined(CY_DEVICE_PSOC6A512K)
+#include "cy_serial_flash_qspi.h"
+#include "cycfg_qspi_memslot.h"
+#endif
+
 
 /*******************************************************************************
 * Macros
@@ -105,10 +111,22 @@ int main(void)
     /* Initialize retarget-io to use the debug UART port */
     cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
 
+
+    #if defined(CY_DEVICE_PSOC6A512K)
+        const uint32_t bus_frequency = 50000000lu;
+        cy_serial_flash_qspi_init(smifMemConfigs[0], CYBSP_QSPI_D0, CYBSP_QSPI_D1,
+                                      CYBSP_QSPI_D2, CYBSP_QSPI_D3, NC, NC, NC, NC,
+                                      CYBSP_QSPI_SCK, CYBSP_QSPI_SS, bus_frequency);
+
+        cy_serial_flash_qspi_enable_xip(true);
+    #endif
+
     /* \x1b[2J\x1b[;H - ANSI ESC sequence to clear screen */
     APP_INFO(("\x1b[2J\x1b[;H"));
+    printf("Visit the below link for step by step instructions to run this code example:\n\n");
+    printf("https://github.com/Infineon/mtb-example-anycloud-wifi-web-server#operation\n\n");
     APP_INFO(("============================================================\n"));
-    APP_INFO(("               AnyCloud: Wi-Fi Web Server                   \n"));
+    APP_INFO(("               Wi-Fi Web Server                   \n"));
     APP_INFO(("============================================================\n\n"));
 
     /* Starts the SoftAP and then HTTP server . */

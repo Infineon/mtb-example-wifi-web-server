@@ -8,7 +8,7 @@
 *
 *
 ********************************************************************************
-* Copyright 2021, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2021-2023, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -50,13 +50,13 @@
  /* Flag to indicate Capsense scan completion */
  volatile bool capsense_scan_complete = false;
 
-#if ENABLE_TFT
+#ifdef ENABLE_TFT
     /* ADC used for Light sensor */
     cyhal_adc_t adc;
 
     /* Light sensor object */
     mtb_light_sensor_t light_sensor_obj;
-#endif /* #if ENABLE_TFT */
+#endif /* #ifdef ENABLE_TFT */
 
 /********************************************************************************
  * Function Name: initialize_led
@@ -90,7 +90,7 @@ uint32_t initialize_led(void)
     return result;
 }
 
-#if ENABLE_TFT
+#ifdef ENABLE_TFT
 /********************************************************************************
  * Function Name: initialize_light_sensor
  ********************************************************************************
@@ -117,7 +117,7 @@ uint32_t initialize_light_sensor(void)
 
     return result;
 }
-#endif /* #if ENABLE_TFT */
+#endif /* #ifdef ENABLE_TFT */
 
 /********************************************************************************
  * Function Name: capsense_isr
@@ -286,7 +286,14 @@ void decrease_duty_cycle(void)
 void set_duty_cycle(uint32_t duty_cycle)
 {
     xSemaphoreTakeRecursive(pwm_duty.xpwm_mutex, portMAX_DELAY);
-    pwm_duty.duty = duty_cycle;
+    if(duty_cycle < DUTYCYCLE_INCREMENT)
+    {
+        pwm_duty.duty = DUTYCYCLE_INCREMENT;
+    }
+    else
+    {
+        pwm_duty.duty = duty_cycle;
+    }
     adjust_led_brightness();
     xSemaphoreGiveRecursive(pwm_duty.xpwm_mutex);
 }
@@ -418,7 +425,7 @@ void initialize_sensors(void)
     result = initialize_capsense();
     PRINT_AND_ASSERT(result, "Failed to initialize capsense\r\n");
 
-#if ENABLE_TFT
+#ifdef ENABLE_TFT
     result = initialize_light_sensor();
     PRINT_AND_ASSERT(result, "Failed to initialize light sensor\r\n");
 #endif

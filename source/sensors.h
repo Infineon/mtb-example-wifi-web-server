@@ -5,7 +5,7 @@
 *              sensors.
 *
 ********************************************************************************
-* Copyright 2021, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2021-2023, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -44,12 +44,6 @@
 #define SENSORS_H_
 
 
-#if defined (TARGET_CY8CKIT_062_WIFI_BT) || defined (TARGET_CY8CKIT_062S2_43012) || \
-    defined (TARGET_CYW9P62S1_43438EVB_01)
-    #define ENABLE_TFT                                 1
-#endif
-
-
 /* PWM LED frequency in Hz */
 #define PWM_LED_FREQ_HZ                                 (1000000lu)
 
@@ -77,7 +71,7 @@
 /* CapSense interrupt priority */
 #define CAPSENSE_INTR_PRIORITY                          (7u)
 
-#if ENABLE_TFT
+#ifdef ENABLE_TFT
 /* Light sensor pin mapped to red led */
 #define LIGHT_SENSOR_PIN                                (CYBSP_A0)
 
@@ -90,7 +84,7 @@
 /* Initial row position on TFT display */
 #define TOP_DISPLAY                                     (0u)
 
-#endif /* #if ENABLE_TFT */
+#endif /* #ifdef ENABLE_TFT */
 
 /* Timeout value to get mutex */
 #define GET_MUTEX_DELAY                                 (200u)
@@ -117,8 +111,8 @@ uint8_t get_duty_cycle(void);
 void process_touch(void);
 void initialize_sensors(void);
 
-#if ENABLE_TFT
+#ifdef ENABLE_TFT
     uint32_t initialize_light_sensor(void);
-#endif /* #if ENABLE_TFT */
+#endif /* #ifdef ENABLE_TFT */
 
 #endif

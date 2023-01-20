@@ -5,7 +5,7 @@
 *              device in SoftAP mode and start HTTP server.
 *
 ********************************************************************************
-* Copyright 2021, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2021-2023, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -47,7 +47,7 @@
 /* Wi-Fi connection manager header files */
 #include "cy_wcm.h"
 #include "cybsp.h"
-#include "cy_lwip.h"
+//#include "cy_lwip.h"
 #include "cyhal_gpio.h"
 
 /* Capsense header file */
@@ -58,13 +58,13 @@
 #include "html_web_page.h"
 #include "sensors.h"
 
-#if ENABLE_TFT
+#ifdef ENABLE_TFT
 /* CY8CKIT-028-TFT shield and LCD library */
 #include "GUI.h"
 #include "mtb_st7789v.h"
 #include "cy8ckit_028_tft_pins.h"
 #include "mtb_light_sensor.h"
-#endif /* #if ENABLE_TFT */
+#endif /* #ifdef ENABLE_TFT */
 
 #define INITIALISER_IPV4_ADDRESS(addr_var, addr_val)  addr_var = { CY_WCM_IP_VER_V4, { .v4 = (uint32_t)(addr_val) } }
 #define MAKE_IPV4_ADDRESS(a, b, c, d)                 ((((uint32_t) d) << 24) | (((uint32_t) c) << 16) | \

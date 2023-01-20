@@ -9,7 +9,7 @@
 *              processes GET and POST request from the HTTP client. 
 *
 ********************************************************************************
-* Copyright 2021, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2021-2023, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -65,6 +65,7 @@
 
 /* Standard C header file */
 #include <string.h>
+#include <ctype.h>
 
 /* HTTP server task header file. */
 #include "cy_http_server.h"
@@ -81,7 +82,7 @@ static const cy_wcm_ip_setting_t ap_sta_mode_ip_settings =
     INITIALISER_IPV4_ADDRESS( .gateway,    SOFTAP_GATEWAY),
 };
 
-#if ENABLE_TFT
+#ifdef ENABLE_TFT
 
 /* Global variable to hold display row position. */
 uint16_t row = TOP_DISPLAY;
@@ -499,9 +500,9 @@ cy_rslt_t wifi_extract_credentials(const uint8_t *data, uint32_t data_len, cy_ht
     cy_rslt_t result = CY_RSLT_SUCCESS;
     char *response = http_wifi_connect_response;
 
-#if ENABLE_TFT
+#ifdef ENABLE_TFT
     char display_buffer[DISPLAY_BUFFER_LENGTH] = {0};
-#endif /* #if ENABLE_TFT */
+#endif /* #ifdef ENABLE_TFT */
 
     /*decode the url encoded data using the function url_decode()*/
     url_decode(buffer, data);
@@ -562,14 +563,14 @@ cy_rslt_t wifi_extract_credentials(const uint8_t *data, uint32_t data_len, cy_ht
             ERR_INFO(("Failed to send the HTTP POST response.\n"));
         }
 
-#if ENABLE_TFT
+#ifdef ENABLE_TFT
     row += ROW_OFFSET;
     GUI_DispStringAt("Connected to the Wi-Fi network: \r\n", 0, row);
     row += ROW_OFFSET;
     sprintf(display_buffer, " %s\r\n", wifi_ssid);
     GUI_DispStringAt(display_buffer, 0, row);
     row += ROW_OFFSET;
-#endif /* #if ENABLE_TFT */
+#endif /* #ifdef ENABLE_TFT */
 
     }
     return result;
@@ -612,7 +613,7 @@ cy_rslt_t start_ap_mode()
     PRINT_AND_ASSERT(result, "cy_wcm_start_ap failed...! \n");
 
     /* Get IPV4 address for AP */
-    result = cy_wcm_get_ip_addr(CY_WCM_INTERFACE_TYPE_AP, &ipv4_addr, 1);
+    result = cy_wcm_get_ip_addr(CY_WCM_INTERFACE_TYPE_AP, &ipv4_addr);
     PRINT_AND_ASSERT(result, "cy_wcm_get_ip_addr failed...! \n");
 
     return result;
@@ -697,7 +698,7 @@ cy_rslt_t configure_http_server(void)
     cy_resource_dynamic_data_t http_get_post_resource;
 
     /* IP address of SoftAp. */
-    result = cy_wcm_get_ip_addr(CY_WCM_INTERFACE_TYPE_AP, &ip_addr, 1);
+    result = cy_wcm_get_ip_addr(CY_WCM_INTERFACE_TYPE_AP, &ip_addr);
     PRINT_AND_ASSERT(result, "cy_wcm_get_ip_addr failed for creating HTTP server...! \n");
 
     http_server_ip_address.ip_address.ip.v4 = ip_addr.ip.v4;
@@ -782,7 +783,7 @@ cy_rslt_t reconfigure_http_server(void)
     PRINT_AND_ASSERT(result, "Failed to deinit server.\n");
 
     /* IP address of SoftAp. */
-    result = cy_wcm_get_ip_addr(CY_WCM_INTERFACE_TYPE_STA, &ip_addr, 1);
+    result = cy_wcm_get_ip_addr(CY_WCM_INTERFACE_TYPE_STA, &ip_addr);
     PRINT_AND_ASSERT(result, "cy_wcm_get_ip_addr failed for creating HTTP server...! \n");
 
     http_server_ip_address.ip_address.ip.v4 = ip_addr.ip.v4;
@@ -918,22 +919,22 @@ void server_task(void *arg)
     cy_rslt_t result = CY_RSLT_SUCCESS;
     (void)arg;
 
-#if ENABLE_TFT
+#ifdef ENABLE_TFT
     result = mtb_st7789v_init8(&tft_pins);
     CY_ASSERT(result == CY_RSLT_SUCCESS);
 
     uint8_t light_sensor_reading = 0;
     uint16_t light_sensor_voltage = 0;
-#endif /* #if ENABLE_TFT */
+#endif /* #ifdef ENABLE_TFT */
 
     uint8_t duty_cycle_reading = 0;
     char sensor_value_buffer[SENSOR_BUFFER_LENGTH];
     char http_response[MAX_HTTP_RESPONSE_LENGTH] = {0};
 
-#if ENABLE_TFT
+#ifdef ENABLE_TFT
     /*Initialize and setup TFT display */
     initialize_display();
-#endif /* #if ENABLE_TFT */
+#endif /* #ifdef ENABLE_TFT */
 
     /* Initialize the Wi-Fi device as a STA.*/
     cy_wcm_config_t config = {.interface = CY_WCM_INTERFACE_TYPE_AP_STA};
@@ -943,7 +944,7 @@ void server_task(void *arg)
     PRINT_AND_ASSERT(result,"cy_wcm_init failed...!\n");
 
     result = start_ap_mode();
-    PRINT_AND_ASSERT(result, "start SoftAP failed...!\n");
+   // PRINT_AND_ASSERT(result, "start SoftAP failed...!\n");
 
     result = configure_http_server();
     PRINT_AND_ASSERT(result, "Failed to configure the HTTP server...!\n");
@@ -988,29 +989,29 @@ void server_task(void *arg)
             /*retrieve pwm value*/
             duty_cycle_reading = get_duty_cycle();
 
-#if ENABLE_TFT
+#ifdef ENABLE_TFT
            /*Calculate lightsensor voltage.*/
            light_sensor_reading = mtb_light_sensor_light_level(&light_sensor_obj);
            light_sensor_voltage = (uint32_t)((light_sensor_reading * LIGHTSENSOR_ADC_MAX_VOLTAGE) / LIGHTSENSOR_ADC_MAX_COUNT);
-#endif /* #if ENABLE_TFT */
+#endif /* #ifdef ENABLE_TFT */
 
-#if ENABLE_TFT
+#ifdef ENABLE_TFT
         /* Display data on LCD */
         sprintf(sensor_value_buffer, "%04d mV", light_sensor_voltage);
         GUI_DispStringAt(sensor_value_buffer, SENSOR_DISPLAY_OFFSET, light_sensor_row_print);
         sprintf(sensor_value_buffer, "%03d %%", duty_cycle_reading);
         GUI_DispStringAt(sensor_value_buffer, SENSOR_DISPLAY_OFFSET, duty_cycle_row_print);
-#endif /* #if ENABLE_TFT */
+#endif /* #ifdef ENABLE_TFT */
 
         /* Send the event stream with light sensor voltage and duty cycle */
         if( http_event_stream != NULL )
         {
-#if ENABLE_TFT
+#ifdef ENABLE_TFT
             sprintf(sensor_value_buffer, "Light Sensor Voltage: %dmV <br> PWM Duty Cycle: %d", light_sensor_voltage, duty_cycle_reading);
 
 #else
             sprintf(sensor_value_buffer, "PWM Duty Cycle: %d", duty_cycle_reading);
-#endif /* #if ENABLE_TFT */
+#endif /* #ifdef ENABLE_TFT */
             strcpy(http_response, (char*)sensor_value_buffer);
 
             /* Add event stream header */
@@ -1051,7 +1052,7 @@ void server_task(void *arg)
 
 }
 
-#if ENABLE_TFT
+#ifdef ENABLE_TFT
 /*******************************************************************************
 * Function Name: initialize_display
 ********************************************************************************
@@ -1080,7 +1081,7 @@ void initialize_display(void)
     GUI_SetBkColor(GUI_BLACK);
     GUI_Clear();
 }
-#endif /* #if ENABLE_TFT */
+#endif /* #ifdef ENABLE_TFT */
 
 /*******************************************************************************
 * Function Name: display_configuration
@@ -1104,14 +1105,14 @@ void display_configuration(void)
     char display_ip_buffer[DISPLAY_BUFFER_LENGTH];
     char http_url[URL_LENGTH]={0};
 
-#if ENABLE_TFT
+#ifdef ENABLE_TFT
     char display_buffer[SENSOR_BUFFER_LENGTH];
-#endif /* #if ENABLE_TFT */
+#endif /* #ifdef ENABLE_TFT */
 
     if(reconfiguration_request == 0)
     {
         /* IP address of SoftAp. */
-        result = cy_wcm_get_ip_addr(CY_WCM_INTERFACE_TYPE_AP, &ip_address, 1);
+        result = cy_wcm_get_ip_addr(CY_WCM_INTERFACE_TYPE_AP, &ip_address);
         PRINT_AND_ASSERT(result, "Failed to retrieveSoftAP IP address\n");
 
         /*Print message to connect to that ip address*/
@@ -1133,10 +1134,10 @@ void display_configuration(void)
         APP_INFO(("perform a Wi-Fi scan to get the list of available APs.\r\n"));
         APP_INFO(("****************************************************************************\r\n"));
 
-#if ENABLE_TFT
+#ifdef ENABLE_TFT
         /* Display instructions text */
         GUI_SetFont(GUI_FONT_16B_1);
-        GUI_DispString("***AnyCloud: Wi-Fi Web Server - Provisioning***");
+        GUI_DispString("***Wi-Fi Web Server - Provisioning***");
         row +=ROW_OFFSET;
         GUI_SetFont(GUI_FONT_13B_1);
         GUI_DispStringAt("Using another device, connect to the following Wi-Fi \r\n", 0, row);
@@ -1156,14 +1157,14 @@ void display_configuration(void)
         GUI_DispStringAt("You can enter Wi-Fi network name and password directly ", 0, row);
         row +=ROW_OFFSET;
         GUI_DispStringAt("or perform a Wi-Fi scan to get the list of available APs.", 0, row);
-#endif /* #if ENABLE_TFT */
+#endif /* #ifdef ENABLE_TFT */
     }
     else
     {
         /*Variable to store associated AP informations. */
         cy_wcm_associated_ap_info_t associated_ap_info;
         /* IP address of STA. */
-        result = cy_wcm_get_ip_addr(CY_WCM_INTERFACE_TYPE_STA, &ip_address, 1);
+        result = cy_wcm_get_ip_addr(CY_WCM_INTERFACE_TYPE_STA, &ip_address);
         PRINT_AND_ASSERT(result, "Failed to retrieveSoftAP IP address\n");
 
         /*Print message to connect to that ip address*/
@@ -1183,17 +1184,17 @@ void display_configuration(void)
         APP_INFO(("******************************************************************\r\n"));
         APP_INFO(("On a device connected to the '%s' Wi-Fi network, \r\n", associated_ap_info.SSID));
         APP_INFO(("Open a web browser and go to : %s\r\n", http_url));
-#if ENABLE_TFT
+#ifdef ENABLE_TFT
         APP_INFO(("Use the webpage to observe the light sensor voltage.\r\n"));
-#endif /* #if ENABLE_TFT */
+#endif /* #ifdef ENABLE_TFT */
         APP_INFO(("Observe and vary the LED duty cycle from the webpage.\r\n"));
         APP_INFO(("******************************************************************\r\n"));
 
-#if ENABLE_TFT
+#ifdef ENABLE_TFT
         GUI_Clear();
         row = TOP_DISPLAY;
         GUI_SetFont(GUI_FONT_16B_1);
-        GUI_DispString("***AnyCloud: Wi-Fi Web Server - Device Data***");
+        GUI_DispString("***Wi-Fi Web Server - Device Data***");
         row += ROW_OFFSET;
         GUI_SetFont(GUI_FONT_13B_1);
         GUI_DispStringAt("On a device connected to the Wi-Fi network\r\n", 0, row);
@@ -1211,7 +1212,7 @@ void display_configuration(void)
         row += ROW_OFFSET;
         duty_cycle_row_print = row;
         GUI_DispStringAt("PWM Duty Cycle", 0, row);
-#endif /* #if ENABLE_TFT */
+#endif /* #ifdef ENABLE_TFT */
     }
 }
 

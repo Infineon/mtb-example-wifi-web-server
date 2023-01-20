@@ -7,7 +7,7 @@
 #
 ################################################################################
 # \copyright
-# Copyright 2018-2021, Cypress Semiconductor Corporation (an Infineon company)
+# Copyright 2018-2023, Cypress Semiconductor Corporation (an Infineon company)
 # SPDX-License-Identifier: Apache-2.0
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,23 +28,29 @@
 # Basic Configuration
 ################################################################################
 
+# Type of ModusToolbox Makefile Options include:
+#
+# COMBINED    -- Top Level Makefile usually for single standalone application
+# APPLICATION -- Top Level Makefile usually for multi project application
+# PROJECT     -- Project Makefile under Application
+#
+MTB_TYPE=COMBINED
+
 # Target board/hardware (BSP).
 # To change the target, it is recommended to use the Library manager
-# ('make modlibs' from command line), which will also update Eclipse IDE launch
-# configurations. If TARGET is manually edited, ensure TARGET_<BSP>.mtb with a
-# valid URL exists in the application, run 'make getlibs' to fetch BSP contents
-# and update or regenerate launch configurations for your IDE.
+# ('make library-manager' from command line), which will also update Eclipse IDE launch
+# configurations.
 TARGET=CY8CKIT-062-WIFI-BT
 
 # Name of application (used to derive name of final linked file).
 #
 # If APPNAME is edited, ensure to update or regenerate launch
 # configurations for your IDE.
-APPNAME=mtb-example-anycloud-wifi-web-server
+APPNAME=mtb-example-wifi-web-server
 
 # Name of toolchain to use. Options include:
 #
-# GCC_ARM -- GCC provided with ModusToolbox IDE
+# GCC_ARM -- GCC provided with ModusToolbox software
 # ARM     -- ARM Compiler (must be installed separately)
 # IAR     -- IAR Compiler (must be installed separately)
 #
@@ -69,6 +75,10 @@ VERBOSE=
 # Advanced Configuration
 ################################################################################
 
+# Uncomment below DEFINES if you may use TFT feature on one of those boards: 
+# CY8CKIT-062-WIFI-BT, CYW9P62S1-43438EVB-01, CY8CKIT-062S2-43012.
+DEFINES+=ENABLE_TFT
+
 # Enable optional code that is ordinarily disabled by default.
 #
 # Available components depend on the specific targeted hardware and firmware
@@ -81,8 +91,12 @@ VERBOSE=
 #
 COMPONENTS=FREERTOS LWIP MBEDTLS SECURE_SOCKETS
 
-ifeq ($(TARGET), $(filter $(TARGET), CY8CKIT-062-WIFI-BT CYW9P62S1-43438EVB-01 CY8CKIT-062S2-43012))
-COMPONENTS+=EMWIN_OSNTS
+ifeq ($(DEFINES), ENABLE_TFT)
+# Enable EMWIN_OSNTS component if TFT feature is enabled (ENABLE_TFT)
+    COMPONENTS+=EMWIN_OSNTS
+else
+# Ignore SEARCH_CY8CKIT-028-TFT if ENABLE_TFT is disabled
+    CY_IGNORE+=$(SEARCH_CY8CKIT-028-TFT)
 endif
 
 # Like COMPONENTS, but disable optional code that was enabled by default.
@@ -102,7 +116,7 @@ INCLUDES=
 MBEDTLSFLAGS = MBEDTLS_USER_CONFIG_FILE='"mbedtls_user_config.h"'
 
 # Add additional defines to the build process (without a leading -D).
-DEFINES=$(MBEDTLSFLAGS) CYBSP_WIFI_CAPABLE CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_RTOS_AWARE
+DEFINES+=$(MBEDTLSFLAGS) CYBSP_WIFI_CAPABLE CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_RTOS_AWARE
 
 DEFINES+=ENABLE_HTTP_SERVER_LOGS
 DEFINES+=MAX_NUMBER_OF_HTTP_SERVER_RESOURCES=10
@@ -146,6 +160,8 @@ PREBUILD=
 # Custom post-build commands to run.
 POSTBUILD=
 
+# To change the default policy
+CY_SECURE_POLICY_NAME=policy_single_CM0_CM4_smif_swap
 
 ################################################################################
 # Paths
@@ -172,11 +188,11 @@ CY_GETLIBS_SHARED_NAME=mtb_shared
 # Absolute path to the compiler's "bin" directory.
 #
 # The default depends on the selected TOOLCHAIN (GCC_ARM uses the ModusToolbox
-# IDE provided compiler by default).
+# software provided compiler by default).
 CY_COMPILER_PATH=
 
 
-# Locate ModusToolbox IDE helper tools folders in default installation
+# Locate ModusToolbox helper tools folders in default installation
 # locations for Windows, Linux, and macOS.
 CY_WIN_HOME=$(subst \,/,$(USERPROFILE))
 CY_TOOLS_PATHS ?= $(wildcard \
@@ -184,7 +200,7 @@ CY_TOOLS_PATHS ?= $(wildcard \
     $(HOME)/ModusToolbox/tools_* \
     /Applications/ModusToolbox/tools_*)
 
-# If you install ModusToolbox IDE in a custom location, add the path to its
+# If you install ModusToolbox software in a custom location, add the path to its
 # "tools_X.Y" folder (where X and Y are the version number of the tools
 # folder). Make sure you use forward slashes.
 CY_TOOLS_PATHS+=
@@ -198,10 +214,5 @@ $(error Unable to find any of the available CY_TOOLS_PATHS -- $(CY_TOOLS_PATHS).
 endif
 
 $(info Tools Directory: $(CY_TOOLS_DIR))
-
-# Exclude the CY8CKIT-028-TFT lib depending on the target.
-ifeq ($(TARGET), $(filter $(TARGET), CY8CPROTO-062-4343W CYW9P62S1-43012EVB-01))
-CY_IGNORE+=../mtb_shared/CY8CKIT-028-TFT/
-endif
 
 include $(CY_TOOLS_DIR)/make/start.mk
