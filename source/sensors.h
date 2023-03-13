@@ -1,7 +1,7 @@
 /******************************************************************************
 * File Name: sensors.h
 *
-* Description: This file contains configuration parameters for configuring the 
+* Description: This file contains configuration parameters for configuring the
 *              sensors.
 *
 ********************************************************************************
@@ -62,13 +62,13 @@
 /* Dutycycle increment/decrement by 10% */
 #define DUTYCYCLE_INCREMENT                             (10u)
 
-/* Capsense task stack size */
+/* CAPSENSE task stack size */
 #define CAPSENSE_TASK_STACK_SIZE                        (5 * 1024)
 
-/* Capsense task priority */
+/* CAPSENSE task priority */
 #define CAPSENSE_TASK_PRIORITY                          (1u)
 
-/* CapSense interrupt priority */
+/* CAPSENSE interrupt priority */
 #define CAPSENSE_INTR_PRIORITY                          (7u)
 
 #ifdef ENABLE_TFT

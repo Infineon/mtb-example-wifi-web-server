@@ -1,7 +1,7 @@
 /******************************************************************************
 * File Name: web_server.h
 *
-* Description: This file contains configuration parameters for configuring the 
+* Description: This file contains configuration parameters for configuring the
 *              device in SoftAP mode and start HTTP server.
 *
 ********************************************************************************
@@ -50,7 +50,7 @@
 //#include "cy_lwip.h"
 #include "cyhal_gpio.h"
 
-/* Capsense header file */
+/* CAPSENSE header file */
 #include "cycfg_capsense.h"
 
 #include "cyabs_rtos.h"
@@ -108,7 +108,7 @@
  */
 #define SOFTAP_PASSWORD                              "SOFTAP_PWD"
 #define SOFTAP_SECURITY_TYPE                         CY_WCM_SECURITY_WPA2_AES_PSK
-#define SOFTAP_IP_ADDRESS                            MAKE_IPV4_ADDRESS(192, 168, 0,  2) 
+#define SOFTAP_IP_ADDRESS                            MAKE_IPV4_ADDRESS(192, 168, 0,  2)
 #define SOFTAP_NETMASK                               MAKE_IPV4_ADDRESS(255, 255, 255, 0)
 #define SOFTAP_GATEWAY                               MAKE_IPV4_ADDRESS(192, 168, 0,  2)
 
@@ -128,9 +128,9 @@
 #define TOP_DISPLAY                                  (0u)
 
 /* Offset row position on TFT display */
-#define ROW_OFFSET                                   (20)   
+#define ROW_OFFSET                                   (20)
 /* Offset row position on TFT display for displaying sensor value */
-#define SENSOR_DISPLAY_OFFSET                        (200)   
+#define SENSOR_DISPLAY_OFFSET                        (200)
 
 /* Macros used to format HTTP event stream sent from server to client */
 #define EVENT_STREAM_DATA                            "data: "
@@ -157,7 +157,7 @@
 #define SIZE_OF_IP_ARRAY_STA                        (1u)
 
 
-/* Macros that defines ASCII characters used in the code example */ 
+/* Macros that defines ASCII characters used in the code example */
 #define CAPITAL_LETTER_A_ASCII_VALUE                (65u)
 #define SMALL_LETTER_A_ASCII_VALUE                  (97u)
 #define NUMBER_ZERO_ASCII_VALUE                     (48u)

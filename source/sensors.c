@@ -2,8 +2,8 @@
 * File Name: sensors.c
 *
 * Description: This file contains necessary functions to increase/decrease PWM
-*              duty cycle either after detecting a touch on the capsense 
-*              slider/buttons or after recieving a POST command from html 
+*              duty cycle either after detecting a touch on the CAPSENSE
+*              slider/buttons or after recieving a POST command from html
 *              web page.
 *
 *
@@ -47,7 +47,7 @@
  /* PWM used to change LED brightness */
  cyhal_pwm_t pwm_led;
 
- /* Flag to indicate Capsense scan completion */
+ /* Flag to indicate CAPSENSE scan completion */
  volatile bool capsense_scan_complete = false;
 
 #ifdef ENABLE_TFT
@@ -141,7 +141,7 @@ static void capsense_isr(void)
  * Function Name: capsense_callback
  ********************************************************************************
  * Summary:
- *  This functions sets the capsense_scan_complete flag to true when Capsense scan
+ *  This functions sets the capsense_scan_complete flag to true when CAPSENSE scan
  *  is complete.
  *
  * Parameters:
@@ -160,20 +160,20 @@ void capsense_callback(cy_stc_active_scan_sns_t * ptrActiveScan)
  * Function Name: initialize_capsense
  ********************************************************************************
  * Summary:
- *  The function initializes Capsense buttons and slider.
+ *  The function initializes CAPSENSE buttons and slider.
  *
  * Parameters:
  *  void
  *
  * Return:
- *  uint32_t - Returns CY_RSLT_SUCCESS if capsense is successfully initialized.
+ *  uint32_t - Returns CY_RSLT_SUCCESS if CAPSENSE is successfully initialized.
  *
  *******************************************************************************/
 uint32_t initialize_capsense(void)
 {
     cy_rslt_t result;
 
-    /* CapSense interrupt configuration */
+    /* CAPSENSE interrupt configuration */
     const cy_stc_sysint_t CapSense_interrupt_config =
     {
             .intrSrc = CYBSP_CSD_IRQ,
@@ -182,18 +182,18 @@ uint32_t initialize_capsense(void)
 
     /* Capture the CSD HW block and initialize it to the default state. */
     result = Cy_CapSense_Init(&cy_capsense_context);
-    PRINT_AND_ASSERT(result, "Capsense init error\r\n");
+    PRINT_AND_ASSERT(result, "CAPSENSE init error\r\n");
 
-    /* Initialize CapSense interrupt */
+    /* Initialize CAPSENSE interrupt */
     Cy_SysInt_Init(&CapSense_interrupt_config, capsense_isr);
     NVIC_ClearPendingIRQ(CapSense_interrupt_config.intrSrc);
     NVIC_EnableIRQ(CapSense_interrupt_config.intrSrc);
 
-    /* Initialize the CapSense firmware modules. */
+    /* Initialize the CAPSENSE firmware modules. */
     result = Cy_CapSense_Enable(&cy_capsense_context);
-    PRINT_AND_ASSERT(result, "Capsense enable error\r\n");
+    PRINT_AND_ASSERT(result, "CAPSENSE enable error\r\n");
 
-    /* Assign a callback function to indicate end of CapSense scan. */
+    /* Assign a callback function to indicate end of CAPSENSE scan. */
     result = Cy_CapSense_RegisterCallback(CY_CAPSENSE_END_OF_SCAN_E,
             capsense_callback, &cy_capsense_context);
     PRINT_AND_ASSERT(result, "register callback failed\r\n");
@@ -326,7 +326,7 @@ uint8_t get_duty_cycle(void)
  * Function Name: process_touch
  ********************************************************************************
  * Summary:
- *  The function handles the touchs on Capsense button and slider.
+ *  The function handles the touchs on CAPSENSE button and slider.
  *
  * Parameters:
  *  void
@@ -400,7 +400,7 @@ void process_touch(void)
 * Function Name: initialize_sensors
 ********************************************************************************
 * Summary:
-*  Initializes ambient light sensor, capsense and led. Updates duty cycle based 
+*  Initializes ambient light sensor, CAPSENSE and LED. Updates duty cycle based
 *  on user input.
 *
 * Parameters:
@@ -423,7 +423,7 @@ void initialize_sensors(void)
     PRINT_AND_ASSERT(result, "Failed to initialize led.\r\n");
 
     result = initialize_capsense();
-    PRINT_AND_ASSERT(result, "Failed to initialize capsense\r\n");
+    PRINT_AND_ASSERT(result, "Failed to initialize CAPSENSE\r\n");
 
 #ifdef ENABLE_TFT
     result = initialize_light_sensor();
@@ -431,12 +431,12 @@ void initialize_sensors(void)
 #endif
     /* Initiate first scan */
     result = Cy_CapSense_ScanAllWidgets(&cy_capsense_context);
-    PRINT_AND_ASSERT(result, "Capsense error\r\n");
+    PRINT_AND_ASSERT(result, "CAPSENSE error\r\n");
 
-    APP_INFO(("Please wait.\r\n"));
+    APP_INFO(("Please wait...\r\n"));
     while(CY_CAPSENSE_BUSY == Cy_CapSense_IsBusy(&cy_capsense_context));
 
-    APP_INFO(("Capsense Ready, led ready\r\n"));
+    APP_INFO(("CAPSENSE ready, LED ready\r\n"));
 }
 
 /* [] END OF FILE */

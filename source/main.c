@@ -6,7 +6,7 @@
 *              sensor on the CY8CKIT-028. It then displays that information on
 *              a webpage. The PSoC 6 also controls the brightness of the RED
 *              led on the board. The brightness can be controlled by the two
-*              capsense buttons, capsense slider, or the webpage.
+*              CAPSENSE buttons, CAPSENSE slider, or the webpage.
 *
 * Related Document: README.md
 *
